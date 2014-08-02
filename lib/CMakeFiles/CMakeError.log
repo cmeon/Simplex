@@ -1,0 +1,64 @@
+Performing C++ SOURCE FILE Test COMPILER_SUPPORT_wd981 failed with the following output:
+Change Dir: /home/cmeon/SimplexLP/lib/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/make "cmTryCompileExec4111520989/fast"
+/usr/bin/make -f CMakeFiles/cmTryCompileExec4111520989.dir/build.make CMakeFiles/cmTryCompileExec4111520989.dir/build
+make[1]: Entering directory `/home/cmeon/SimplexLP/lib/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /home/cmeon/SimplexLP/lib/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building CXX object CMakeFiles/cmTryCompileExec4111520989.dir/src.cxx.o
+/usr/bin/c++    -fexceptions -pedantic -Wall -Wextra -Wundef -Wcast-align -Wchar-subscripts -Wnon-virtual-dtor -Wunused-local-typedefs -Wpointer-arith -Wwrite-strings -Wformat-security -Wno-psabi -Wno-variadic-macros -Wno-long-long -fno-check-new -fno-common -fstrict-aliasing -DCOMPILER_SUPPORT_wd981 -Werror   -wd981 -o CMakeFiles/cmTryCompileExec4111520989.dir/src.cxx.o -c /home/cmeon/SimplexLP/lib/CMakeFiles/CMakeTmp/src.cxx
+c++: error: unrecognized command line option '-wd981'
+make[1]: *** [CMakeFiles/cmTryCompileExec4111520989.dir/src.cxx.o] Error 1
+make[1]: Leaving directory `/home/cmeon/SimplexLP/lib/CMakeFiles/CMakeTmp'
+make: *** [cmTryCompileExec4111520989/fast] Error 2
+
+Source file was:
+int main() { return 0;}
+Performing C++ SOURCE FILE Test COMPILER_SUPPORT_wd2304 failed with the following output:
+Change Dir: /home/cmeon/SimplexLP/lib/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/make "cmTryCompileExec4092531577/fast"
+/usr/bin/make -f CMakeFiles/cmTryCompileExec4092531577.dir/build.make CMakeFiles/cmTryCompileExec4092531577.dir/build
+make[1]: Entering directory `/home/cmeon/SimplexLP/lib/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /home/cmeon/SimplexLP/lib/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building CXX object CMakeFiles/cmTryCompileExec4092531577.dir/src.cxx.o
+/usr/bin/c++    -fexceptions -pedantic -Wall -Wextra -Wundef -Wcast-align -Wchar-subscripts -Wnon-virtual-dtor -Wunused-local-typedefs -Wpointer-arith -Wwrite-strings -Wformat-security -Wno-psabi -Wno-variadic-macros -Wno-long-long -fno-check-new -fno-common -fstrict-aliasing -DCOMPILER_SUPPORT_wd2304 -Werror   -wd2304 -o CMakeFiles/cmTryCompileExec4092531577.dir/src.cxx.o -c /home/cmeon/SimplexLP/lib/CMakeFiles/CMakeTmp/src.cxx
+c++: error: unrecognized command line option '-wd2304'
+make[1]: *** [CMakeFiles/cmTryCompileExec4092531577.dir/src.cxx.o] Error 1
+make[1]: Leaving directory `/home/cmeon/SimplexLP/lib/CMakeFiles/CMakeTmp'
+make: *** [cmTryCompileExec4092531577/fast] Error 2
+
+Source file was:
+int main() { return 0;}
+Performing C++ SOURCE FILE Test COMPILER_SUPPORT_STRICTANSI failed with the following output:
+Change Dir: /home/cmeon/SimplexLP/lib/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/make "cmTryCompileExec3433585807/fast"
+/usr/bin/make -f CMakeFiles/cmTryCompileExec3433585807.dir/build.make CMakeFiles/cmTryCompileExec3433585807.dir/build
+make[1]: Entering directory `/home/cmeon/SimplexLP/lib/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /home/cmeon/SimplexLP/lib/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building CXX object CMakeFiles/cmTryCompileExec3433585807.dir/src.cxx.o
+/usr/bin/c++    -fexceptions -pedantic -Wall -Wextra -Wundef -Wcast-align -Wchar-subscripts -Wnon-virtual-dtor -Wunused-local-typedefs -Wpointer-arith -Wwrite-strings -Wformat-security -Wno-psabi -Wno-variadic-macros -Wno-long-long -fno-check-new -fno-common -fstrict-aliasing -DCOMPILER_SUPPORT_STRICTANSI -Werror   -strict-ansi -o CMakeFiles/cmTryCompileExec3433585807.dir/src.cxx.o -c /home/cmeon/SimplexLP/lib/CMakeFiles/CMakeTmp/src.cxx
+c++: error: unrecognized command line option '-strict-ansi'
+make[1]: *** [CMakeFiles/cmTryCompileExec3433585807.dir/src.cxx.o] Error 1
+make[1]: Leaving directory `/home/cmeon/SimplexLP/lib/CMakeFiles/CMakeTmp'
+make: *** [cmTryCompileExec3433585807/fast] Error 2
+
+Source file was:
+int main() { return 0;}
+Performing C++ SOURCE FILE Test COMPILER_SUPPORT_Qunusedarguments failed with the following output:
+Change Dir: /home/cmeon/SimplexLP/lib/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/make "cmTryCompileExec3122782072/fast"
+/usr/bin/make -f CMakeFiles/cmTryCompileExec3122782072.dir/build.make CMakeFiles/cmTryCompileExec3122782072.dir/build
+make[1]: Entering directory `/home/cmeon/SimplexLP/lib/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /home/cmeon/SimplexLP/lib/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building CXX object CMakeFiles/cmTryCompileExec3122782072.dir/src.cxx.o
+/usr/bin/c++    -fexceptions -pedantic -Wall -Wextra -Wundef -Wcast-align -Wchar-subscripts -Wnon-virtual-dtor -Wunused-local-typedefs -Wpointer-arith -Wwrite-strings -Wformat-security -Wno-psabi -Wno-variadic-macros -Wno-long-long -fno-check-new -fno-common -fstrict-aliasing -DCOMPILER_SUPPORT_Qunusedarguments -Werror   -Qunused-arguments -o CMakeFiles/cmTryCompileExec3122782072.dir/src.cxx.o -c /home/cmeon/SimplexLP/lib/CMakeFiles/CMakeTmp/src.cxx
+c++: error: unrecognized command line option '-Qunused-arguments'
+make[1]: Leaving directory `/home/cmeon/SimplexLP/lib/CMakeFiles/CMakeTmp'
+make[1]: *** [CMakeFiles/cmTryCompileExec3122782072.dir/src.cxx.o] Error 1
+make: *** [cmTryCompileExec3122782072/fast] Error 2
+
+Source file was:
+int main() { return 0;}
