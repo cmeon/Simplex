@@ -1,5 +1,8 @@
 // Simplex class
 
+#ifndef SIMPLEX_H
+#define SIMPLEX_H
+
 #include <Eigen/Core>
 #include <Eigen/LU>
 #include <Eigen/Dense>
@@ -14,27 +17,23 @@ class Simplex
   long int M; // number of constrains
   long int N; // number of original variables
 
-  RowVectorXd cT; //(N);
-  MatrixXd A; //(M, N);
-  ColVectorXd b; //(M);
-  struct {
-    int row, col;
-  } pivot;
+  RowVectorXd cT;      //(N);
+  MatrixXd A;          //(M, N);
+  ColVectorXd b;       //(M);
+
   long int pivotRow;
   long int pivotCol;
-  int *xB; // [M];
-  RowVectorXd cBt; //(M);
-  MatrixXd B; //(M, M);
 
-  MatrixXd tableau; //(M+2, M+N+2);
+  int *xB;             // [M];
+  RowVectorXd cBt;     //(M);
+  MatrixXd B;          //(M, M);
+
+  MatrixXd tableau;    //(M+2, M+N+2);
 
  public:
-  // constructor
-  Simplex(long int, long int, double[], double[], double[]);
+  Simplex(long int, long int, double[], double[], double[], int[]);
   ~Simplex();
   void setPivot();
-
- public:
   bool nextIteration();
   void initTableau();
   MatrixXd getTableau();
@@ -45,3 +44,5 @@ class Simplex
   int getPivotCol();
   int getPivotRow();
 };
+
+#endif SIMPLEX_H

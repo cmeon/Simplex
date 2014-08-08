@@ -3,13 +3,52 @@
 #include <cmath>
 
 // Simplex problem constructor
-Simplex::Simplex(long int M, long int N, double A[], double c[], double b[])
+Simplex::Simplex(long int m, long int n, double A[], double c[], double b[], int x[])
 {
-  this->M = M;
-  this->N = N;
-  this->A  = Map<MatrixXd>(A, M, N);
-  this->cT = Map<RowVectorXd>(c, N);
-  this->b  = Map<ColVectorXd>(b, M);
+  int colSize = n;
+  int rowSize = m;
+  for (int i = 0; i<m; i++) {
+    if (x[i] == 0) n++;
+  }
+  this->M = m;
+  this->N = n;
+  double* modifiedA = new double[m*n];
+  double* modifiedC = new double[n];
+
+  int col = 0;
+
+  for (int i=0; i<colSize; i++) {
+    for (int j=0; j<rowSize; j++) {
+      int idx = i*m+j;
+      int idxMA = col*m+j;
+
+      if (x[i] ==-1) {
+	modifiedA[idxMA]   = -(A[idx]);
+	modifiedC[col] = -(c[i]);
+      }
+      if (x[i] == 0) {
+	modifiedA[idxMA]   = +(A[idx]);
+	modifiedA[idxMA+m] = -(A[idx]);
+	modifiedC[col] = +(c[i]);
+	modifiedC[col+1] = -(c[i]);
+      }
+      if (x[i] == 1) {
+	modifiedA[idxMA]   = +(A[idx]);
+	modifiedC[col] = +(c[i]);
+      }
+    }
+
+    if (x[i] == 0) col+=2;
+    else           col++;
+
+  }
+
+  this->A  = Map<MatrixXd>(modifiedA, m, n);
+  this->cT = Map<RowVectorXd>(modifiedC, n);
+  this->b  = Map<ColVectorXd>(b, m);
+
+  delete[] modifiedA;
+  delete[] modifiedC;
 
   initTableau();
 }
@@ -21,7 +60,7 @@ void Simplex::initTableau()
   this->tableau(0, 0)               = 1;
   this->tableau.block(0, 1, 1, N)   = (this->cT.array() * -1);
   this->tableau.block(0, N+1, 1, M) = RowVectorXd::Zero(M);
-  this->tableau(0, M+1)             = 0;
+  this->tableau(0, N+1)             = 0;
 
   this->tableau.block(1, 0, M, 1)   = ColVectorXd::Zero(M);
   this->tableau.block(1, 1, M, N)   = this->A;
@@ -146,4 +185,7 @@ int Simplex::getPivotRow()
 // Empty Destructor
 Simplex::~Simplex()
 {
+  std::cout << xB[0] << std::endl;
+  delete[] xB;
+  std::cout << xB[0] << std::endl;
 }
