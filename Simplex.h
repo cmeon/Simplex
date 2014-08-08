@@ -14,8 +14,8 @@ typedef VectorXd ColVectorXd;
 class Simplex
 {
  private:
-  long int M; // number of constrains
-  long int N; // number of original variables
+  long int M;          // number of constrains
+  long int N;          // number of original variables
 
   RowVectorXd cT;      //(N);
   MatrixXd A;          //(M, N);
@@ -24,7 +24,7 @@ class Simplex
   long int pivotRow;
   long int pivotCol;
 
-  int *xB;             // [M];
+  int *xB;             //[M];
   RowVectorXd cBt;     //(M);
   MatrixXd B;          //(M, M);
 
@@ -45,4 +45,4 @@ class Simplex
   int getPivotRow();
 };
 
-#endif SIMPLEX_H
+#endif // ifndef SIMPLEX_H
