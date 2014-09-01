@@ -128,9 +128,10 @@ void Simplex::setPivot()
       pivotCol = i;
     }
   }
+
   ColVectorXd solution    = tableau.block(1, M+N+1,    M, 1);
   ColVectorXd pivotColumn = tableau.block(1, pivotCol, M, 1);
-
+  std::cout << "pivot col" << pivotColumn << std::endl;
   ArrayXd ratio = solution.array() / pivotColumn.array();
   min = ratio(0);
   pivotRow = 0;
@@ -158,7 +159,7 @@ bool Simplex::nextIteration()
 
   setPivot();
 
-  xB[pivotRow-1]    = pivotCol-1;
+  xB[pivotRow-1]    = pivotCol;
   cBt[pivotRow-1]   = cT[pivotCol-1];
   B.col(pivotRow-1) = A.col(pivotCol-1);
 
@@ -168,7 +169,7 @@ bool Simplex::nextIteration()
   tableau.block(1, 1, M, N)     = ( Binv * A );
   tableau.block(0, N+1, 1, M)   = ( cBt * Binv );
   tableau.block(1, N+1, M, M)   = ( Binv );
-  tableau(0, M+N+1)               = ( cBt * Binv * b );
+  tableau(0, M+N+1)             = ( cBt * Binv * b );
   tableau.block(1, M+N+1, M, 1) = ( Binv * b );
 
   return true;
@@ -279,6 +280,64 @@ int Simplex::getPivotRow()
 
 
 /*
+  Check for case of unbounded solutions
+
+  The situation occurs when the coefficient for the denominator of 
+  the intercept ratios are either zero or negative.
+  Returns true or false true indicating the unbounded solution
+*/
+
+bool Simplex::hasUnboundedSolutions()
+{
+  ColVectorXd pivotColumn = tableau.block(1, pivotCol-1, M, 1);
+
+  bool result = true;
+
+  if ((pivotColumn.array() > 0).all()) {
+    result = false;
+  }
+
+  return result;
+}
+
+
+
+/*
+  Check for case of Multiple optimal solution / Alternative optimal solutions
+
+  When zero appears in the column of a nonbasic variable in the
+  z-row of the optimal tableau
+  iReturns true or false true indicating the unbounded solution
+*/
+
+bool Simplex::hasMultipleOptimalSolutions() {
+  int *nonBasic = new int[M+N];
+
+  RowVectorXd zRow = this->tableau.block(0, 1, 1, N+M);
+  for (int i=0; i<M+N; i++) {
+    nonBasic[i] = 0;
+  }
+
+  for (int i=0; i<M; i++) {
+    nonBasic[xB[i]-1] = 1;
+  }
+
+  for (int i=0; i<M+N; i++) {
+    if (nonBasic[i] == 0) {
+      if (zRow(i) == 0) {
+	return true;
+      }
+    }  
+  }
+  
+  delete [] nonBasic;
+  return false;
+  
+}
+
+
+
+/*
   Destructor
 */
 
@@ -286,7 +345,6 @@ Simplex::~Simplex()
 {
   delete[] xB;
 }
-
 
 
 

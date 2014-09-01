@@ -25,6 +25,14 @@ int main()
     cout << problem.isOptimal()<< endl;
     cout << "c " << problem.getPivotCol()<< endl;
     cout << "r " << problem.getPivotRow()<< endl;
+
+    if (problem.hasMultipleOptimalSolutions()) {
+      break;
+    }
+
+    if (problem.hasUnboundedSolutions()) {
+      break;
+    }
   }
   return 0;
 }
