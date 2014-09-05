@@ -477,7 +477,7 @@ long int Simplex::getM() {
 /*
   get tableau size
 */
-long int Simplex::getTableuCols() {
+long int Simplex::getTableauCols() {
   return tableau.cols();
 }
 
@@ -486,7 +486,7 @@ long int Simplex::getTableuCols() {
 /*
   get tableau size
 */
-long int Simplex::getTableuRows() {
+long int Simplex::getTableauRows() {
   return tableau.rows();
 }
 
