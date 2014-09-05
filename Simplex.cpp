@@ -28,7 +28,7 @@ Simplex::Simplex(long int m, long int n, double A[], double c[], double b[], int
 
   this->natureOfProblem = natureOfProblem;
 
-  if (natureOfProblem != maximization) {
+  if (natureOfProblem == maximization) {
     int colSize = n; // size of the matrix A column
     int rowSize = m; // size of the matrix A row
     
