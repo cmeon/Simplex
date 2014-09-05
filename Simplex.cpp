@@ -475,6 +475,24 @@ long int Simplex::getM() {
 
 
 /*
+  get tableau size
+*/
+long int Simplex::getTableuCols() {
+  return tableau.cols();
+}
+
+
+
+/*
+  get tableau size
+*/
+long int Simplex::getTableuRows() {
+  return tableau.rows();
+}
+
+
+
+/*
   Destructor
 */
 

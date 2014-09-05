@@ -51,6 +51,8 @@ class Simplex
   bool hasUnboundedSolutions();
   long int getN();
   long int getM();
+  long int getTableauRows();
+  long int getTableauCols();
 };
 
 #endif // ifndef SIMPLEX_H
