@@ -49,6 +49,8 @@ class Simplex
   int getPivotRow();
   bool hasMultipleOptimalSolutions();
   bool hasUnboundedSolutions();
+  long int getN();
+  long int getM();
 };
 
 #endif // ifndef SIMPLEX_H
