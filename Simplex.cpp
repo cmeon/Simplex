@@ -119,13 +119,13 @@ Simplex::Simplex(long int m, long int n, double A[], double c[], double b[], int
       else           col++;
       
     }
-
+    
     temp.block(0, 0, m, n) = Map<MatrixXd>(modifiedA, m, n);
     temp.block(m, 0, 1, n) = Map<RowVectorXd>(modifiedC, n);
     temp.block(0, n, m, 1) = Map<ColVectorXd>(b, m);
     temp(m, n)               = 0;
     MatrixXd tempTransposed = temp.transpose();
-
+    
     double* tempA = new double[m*n];
     for (int i=0; i<n; i++) {
       for (int j=0; j<m; j++) {
@@ -133,20 +133,20 @@ Simplex::Simplex(long int m, long int n, double A[], double c[], double b[], int
       }
       std::cout << '\n';
     }
-
+    
     double* tempb = new double[n];
     for (int i=0; i<n; i++) {
       tempb[i] = tempTransposed(i, m);
     }
-
+    
     double* tempc = new double[m];
     for (int i=0; i<m; i++) {
       tempc[i] = tempTransposed(n, i);
     }
-
+    
     this->M = n;
     this->N = m;
-
+    
     this->A  = Map<MatrixXd>(tempA, n, m);
     this->cT = Map<RowVectorXd>(tempc, m);
     this->b  = Map<ColVectorXd>(tempb, n);
@@ -452,6 +452,24 @@ bool Simplex::hasMultipleOptimalSolutions() {
   delete [] nonBasic;
   return false;
   
+}
+
+
+
+/*
+  gets N
+*/
+long int Simplex::getN() {
+  return this->N;
+}
+
+
+
+/*
+  gets M
+*/
+long int Simplex::getM() {
+  return this->M;
 }
 
 
