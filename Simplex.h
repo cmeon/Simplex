@@ -10,6 +10,8 @@
 using namespace Eigen;
 
 typedef VectorXd ColVectorXd; 
+const   bool minimization = true;
+const   bool maximization = false;
 
 class Simplex
 {
@@ -24,6 +26,8 @@ class Simplex
   long int pivotRow;
   long int pivotCol;
 
+  bool natureOfProblem; // true if minimization, false if maximization
+
   int *xB;             //[M];
   RowVectorXd cBt;     //(M);
   MatrixXd B;          //(M, M);
@@ -31,7 +35,7 @@ class Simplex
   MatrixXd tableau;    //(M+2, M+N+2);
 
  public:
-  Simplex(long int, long int, double[], double[], double[], int[]);
+  Simplex(long int, long int, double[], double[], double[], int[], bool);
   ~Simplex();
   void setPivot();
   bool nextIteration();

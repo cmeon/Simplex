@@ -1,38 +1,41 @@
 #include <iostream>
 #include "Simplex.h"
+#include <limits>
 using namespace std;
 
 typedef VectorXd ColVectorXd;
 
 int main()
 {
-  int M=3; // number of constrains
-  int N=3; // number of original variables
+  int M=4; // number of constrains
+  int N=2; // number of original variables
 
-  double A[] = {3,1,3,6,2,2,3,3,0};
-  double b[] = {22,14,14};
-  double c[] = {1,4,5};
-  int    x[] = {1,1,1};
+  double A[] = {1,2,-1,0,2,1,1,1};
+  double b[] = {6,8,1,2};
+  double c[] = {3,2};
+  int    x[] = {1,1};
+  bool min   = false;
 
-  Simplex problem (M, N, A, c, b, x);
+  Simplex problem (M, N, A, c, b, x, min);
 
   problem.initTableau();
   cout << problem.getTableau() << endl << endl;
-  while (problem.nextIteration()) {
+  do {
+    problem.nextIteration();
     cout << problem.getTableau() << endl << endl;
-    cout <<    problem.getCBt()<< endl;
-    cout << "B= "<< problem.getB()<< endl;
-    cout << problem.isOptimal()<< endl;
-    cout << "c " << problem.getPivotCol()<< endl;
-    cout << "r " << problem.getPivotRow()<< endl;
 
     if (problem.hasMultipleOptimalSolutions()) {
+      cout << "multiple" << endl;
       break;
     }
 
-    if (problem.hasUnboundedSolutions()) {
+    if (problem.hasUnboundedSolutions() && !problem.isOptimal()) {
+      cout << "unbounded" << endl;
       break;
     }
-  }
+  }   while (!problem.isOptimal()) ;
+  //using a built-in function to display the machine-epsilon given the data type
+  std::cout << "The machine precision for double is : " << std::numeric_limits<double>::epsilon() << std::endl;
+  
   return 0;
 }

@@ -16,66 +16,149 @@
   Array x stores the nature of the variables such that a value of:
     -1 - corresponds to x>=0
      0 - means x is unrestricted
-    +1 - means x>=0
+    +1 - means x<=0
 
   m is number of constraints
-  n is number of valiables
+  n is number of variables
 
 */
 
-Simplex::Simplex(long int m, long int n, double A[], double c[], double b[], int x[])
+Simplex::Simplex(long int m, long int n, double A[], double c[], double b[], int x[], bool natureOfProblem)
 {
-  int colSize = n; // size of the matrix A column
-  int rowSize = m; // size of the matrix A row
 
-  // to create a modified version of A and c, we calculate the size
-  // of the new modified A and c. Only the column size will change
-  // depending on the nature of the variables
-  for (int i = 0; i<m; i++) {
-    if (x[i] == 0) n++;
+  this->natureOfProblem = natureOfProblem;
+
+  if (natureOfProblem != maximization) {
+    int colSize = n; // size of the matrix A column
+    int rowSize = m; // size of the matrix A row
+    
+    // to create a modified version of A and c, we calculate the size
+    // of the new modified A and c. Only the column size will change
+    // depending on the nature of the variables
+    for (int i = 0; i<m; i++) {
+      if (x[i] == 0) n++;
+    }
+    
+    this->M = m;
+    this->N = n;
+    
+    double* modifiedA = new double[m*n];
+    double* modifiedC = new double[n];
+    
+    int col = 0;
+    
+    for (int i=0; i<colSize; i++) {
+      for (int j=0; j<rowSize; j++) {
+	int idx = i*m+j;
+	int idxMA = col*m+j;
+	
+	if (x[i] ==-1) {
+	  modifiedA[idxMA]   = -(A[idx]);
+	  modifiedC[col] = -(c[i]);
+	}
+	if (x[i] == 0) {
+	  modifiedA[idxMA]   = +(A[idx]);
+	  modifiedA[idxMA+m] = -(A[idx]);
+	  modifiedC[col] = +(c[i]);
+	  modifiedC[col+1] = -(c[i]);
+	}
+	if (x[i] == 1) {
+	  modifiedA[idxMA]   = +(A[idx]);
+	  modifiedC[col] = +(c[i]);
+	}
+      }
+      
+      if (x[i] == 0) col+=2;
+      else           col++;
+      
+    }
+    
+    this->A  = Map<MatrixXd>(modifiedA, m, n);
+    this->cT = Map<RowVectorXd>(modifiedC, n);
+    this->b  = Map<ColVectorXd>(b, m);
+    
+    // laundry work!
+    delete[] modifiedA;
+    delete[] modifiedC;
   }
 
-  this->M = m;
-  this->N = n;
+  if (natureOfProblem == minimization) {
+    // create a temporary matrix
+    MatrixXd temp(m+1, n+1);
 
-  double* modifiedA = new double[m*n];
-  double* modifiedC = new double[n];
-
-  int col = 0;
-
-  for (int i=0; i<colSize; i++) {
-    for (int j=0; j<rowSize; j++) {
-      int idx = i*m+j;
-      int idxMA = col*m+j;
-
-      if (x[i] ==-1) {
-	modifiedA[idxMA]   = -(A[idx]);
-	modifiedC[col] = -(c[i]);
+    double* modifiedA = new double[m*n];
+    double* modifiedC = new double[n];
+    
+    int col = 0;
+    
+    int colSize = n; // size of the matrix A column
+    int rowSize = m; // size of the matrix A row
+    
+    for (int i=0; i<colSize; i++) {
+      for (int j=0; j<rowSize; j++) {
+	int idx = i*m+j;
+	int idxMA = col*m+j;
+	
+	if (x[i] ==-1) {
+	  modifiedA[idxMA]   = -(A[idx]);
+	  modifiedC[col] = -(c[i]);
+	}
+	if (x[i] == 0) {
+	  modifiedA[idxMA]   = +(A[idx]);
+	  modifiedA[idxMA+m] = -(A[idx]);
+	  modifiedC[col] = +(c[i]);
+	  modifiedC[col+1] = -(c[i]);
+	}
+	if (x[i] == 1) {
+	  modifiedA[idxMA]   = +(A[idx]);
+	  modifiedC[col] = +(c[i]);
+	}
       }
-      if (x[i] == 0) {
-	modifiedA[idxMA]   = +(A[idx]);
-	modifiedA[idxMA+m] = -(A[idx]);
-	modifiedC[col] = +(c[i]);
-	modifiedC[col+1] = -(c[i]);
-      }
-      if (x[i] == 1) {
-	modifiedA[idxMA]   = +(A[idx]);
-	modifiedC[col] = +(c[i]);
-      }
+      
+      if (x[i] == 0) col+=2;
+      else           col++;
+      
     }
 
-    if (x[i] == 0) col+=2;
-    else           col++;
+    temp.block(0, 0, m, n) = Map<MatrixXd>(modifiedA, m, n);
+    temp.block(m, 0, 1, n) = Map<RowVectorXd>(modifiedC, n);
+    temp.block(0, n, m, 1) = Map<ColVectorXd>(b, m);
+    temp(m, n)               = 0;
+    MatrixXd tempTransposed = temp.transpose();
 
+    double* tempA = new double[m*n];
+    for (int i=0; i<n; i++) {
+      for (int j=0; j<m; j++) {
+	tempA[j*n+i] = tempTransposed(i,j);
+      }
+      std::cout << '\n';
+    }
+
+    double* tempb = new double[n];
+    for (int i=0; i<n; i++) {
+      tempb[i] = tempTransposed(i, m);
+    }
+
+    double* tempc = new double[m];
+    for (int i=0; i<m; i++) {
+      tempc[i] = tempTransposed(n, i);
+    }
+
+    this->M = n;
+    this->N = m;
+
+    this->A  = Map<MatrixXd>(tempA, n, m);
+    this->cT = Map<RowVectorXd>(tempc, m);
+    this->b  = Map<ColVectorXd>(tempb, n);
+    
+    // laundry work!
+    delete[] modifiedA;
+    delete[] modifiedC;
+    
+    delete[] tempA;
+    delete[] tempb;
+    delete[] tempc;
   }
-
-  this->A  = Map<MatrixXd>(modifiedA, m, n);
-  this->cT = Map<RowVectorXd>(modifiedC, n);
-  this->b  = Map<ColVectorXd>(b, m);
-
-  // laundry work!
-  delete[] modifiedA;
-  delete[] modifiedC;
 
   initTableau();
 }
@@ -111,6 +194,9 @@ void Simplex::initTableau()
 
   // creating the B matrix which is the initial basic matrix
   B = tableau.block(1, N+1, M, M);
+
+  // set pivot
+  setPivot();
 }
 
 
@@ -131,7 +217,6 @@ void Simplex::setPivot()
 
   ColVectorXd solution    = tableau.block(1, M+N+1,    M, 1);
   ColVectorXd pivotColumn = tableau.block(1, pivotCol, M, 1);
-  std::cout << "pivot col" << pivotColumn << std::endl;
   ArrayXd ratio = solution.array() / pivotColumn.array();
   min = ratio(0);
   pivotRow = 0;
@@ -154,9 +239,7 @@ void Simplex::setPivot()
 
 bool Simplex::nextIteration()
 {
-  if (isOptimal())
-    return false;
-
+  
   setPivot();
 
   xB[pivotRow-1]    = pivotCol;
@@ -171,6 +254,9 @@ bool Simplex::nextIteration()
   tableau.block(1, N+1, M, M)   = ( Binv );
   tableau(0, M+N+1)             = ( cBt * Binv * b );
   tableau.block(1, M+N+1, M, 1) = ( Binv * b );
+
+  if (isOptimal())
+    return false;
 
   return true;
 }
@@ -242,13 +328,46 @@ MatrixXd Simplex::getB()
 
 bool Simplex::isOptimal()
 {
+  bool result = true;
   RowVectorXd temp = tableau.block(0, 1, 1, N);
+  int *nonBasic = new int[N];
+  RowVectorXd zRow = this->tableau.block(0, 1, 1, N);
+  for (int i=0; i<M+N; i++) {
+    nonBasic[i] = 0;
+  }
+
+  for (int i=0; i<M; i++) {
+    nonBasic[xB[i]-1] = 1;
+  }
+
+  for (int i=0; i<N; i++) {
+    if (nonBasic[i] == 0) {
+      if (zRow(i) > 0) {
+	result &= true;
+      } else {
+	result &= false;
+      }
+    }
+    std::cout << nonBasic[i] << ", " << std::endl;
+    if (nonBasic[i] == 1) {
+      if (zRow(i) == 0) {
+	result &= true;
+      } else {
+	result &= false;
+      }
+    }
+  }
+
+  /*
   for (int i =0; i<N; i++) {
     if (!(std::signbit(temp[i]) == 0)) {
       return false;
     }
   }
+  
   return true;
+  */
+  return result;
 }
 
 
@@ -293,7 +412,7 @@ bool Simplex::hasUnboundedSolutions()
 
   bool result = true;
 
-  if ((pivotColumn.array() > 0).all()) {
+  if ((pivotColumn.array() > (-std::numeric_limits<double>::epsilon())).all()) {
     result = false;
   }
 
@@ -325,7 +444,7 @@ bool Simplex::hasMultipleOptimalSolutions() {
   for (int i=0; i<M+N; i++) {
     if (nonBasic[i] == 0) {
       if (zRow(i) == 0) {
-	return true;
+	      return true;
       }
     }  
   }
@@ -345,6 +464,4 @@ Simplex::~Simplex()
 {
   delete[] xB;
 }
-
-
 
