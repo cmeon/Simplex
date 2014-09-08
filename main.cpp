@@ -1,41 +1,61 @@
 #include <iostream>
 #include "Simplex.h"
-#include <limits>
 using namespace std;
 
 typedef VectorXd ColVectorXd;
 
+
 int main()
 {
-  int M=3; // number of constrains
-  int N=3; // number of original variables
 
-  double A[] = {3,1,3,6,2,2,3,3,0};
-  double b[] = {22,14,14};
-  double c[] = {1,4,5};
-  int    x[] = {1,1,1};
-  bool min   = false;
+  int M1 = 3; // number of constrains
+  int N1 = 2; // number of original variables
 
-  Simplex problem (M, N, A, c, b, x, min);
+  double A1[] = {4,4,4,3,1,-1};
+  double b1[] = {12,8,8};
+  double c1[] = {3,2};
+  int    x1[] = {1,1};
 
+  int M2 = 3;
+  int N2 = 3;
+  double A2[] = {3,1,3,6,2,2,3,3,0};
+  double b2[] = {22,14,14};
+  double c2[] = {1,4,5};
+  int    x2[] = {1,1,1};
+  
+  //Simplex problem (M1, N1, A1, c1, b1, x1, false);
+  Simplex problem (M2, N2, A2, c2, b2, x2, false);
+  
   problem.initTableau();
+
   cout << problem.getTableau() << endl << endl;
+  cout << "pivot =>" << problem.getPivotCol() << ", " << problem.getPivotRow() << endl;
+  cout << "cbt   =>" << problem.getCBt()      << endl;
+  cout << "B     =>" << problem.getB()        << endl;
+  
   do {
     problem.nextIteration();
+    
     cout << problem.getTableau() << endl << endl;
-
+    cout << "pivot =>" << problem.getPivotCol() << ", " << problem.getPivotRow() << endl;
+    cout << "cbt   =>" << problem.getCBt()      << endl;
+    cout << "B     =>" << problem.getB()        << endl;
+    
     if (problem.hasMultipleOptimalSolutions()) {
-      cout << "multiple" << endl;
+      cout << "multiple optimal solution.\n";
+      //break;
+    }
+    
+    if (problem.hasUnboundedSolutions()) {
+      cout << "unbounded solution\n";
       break;
     }
 
-    if (problem.hasUnboundedSolutions() && !problem.isOptimal()) {
-      cout << "unbounded" << endl;
-      break;
+    if (problem.isOptimal() && !problem.hasMultipleOptimalSolutions()) {
+      cout << "optimal solution\n";
     }
-  }   while (!problem.isOptimal()) ;
-  //using a built-in function to display the machine-epsilon given the data type
-  std::cout << "The machine precision for double is : " << std::numeric_limits<double>::epsilon() << std::endl;
-  
+
+  } while(!problem.isOptimal());
   return 0;
 }
+

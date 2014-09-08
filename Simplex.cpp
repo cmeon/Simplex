@@ -131,7 +131,6 @@ Simplex::Simplex(long int m, long int n, double A[], double c[], double b[], int
       for (int j=0; j<m; j++) {
 	tempA[j*n+i] = tempTransposed(i,j);
       }
-      std::cout << '\n';
     }
     
     double* tempb = new double[n];
@@ -160,6 +159,10 @@ Simplex::Simplex(long int m, long int n, double A[], double c[], double b[], int
     delete[] tempc;
   }
 
+  this->initialZRow = new double[M+N];
+  for (int i=0; i<N+M; i++)
+    initialZRow[i] = (i<N) ? cT[i] : 0;
+  
   initTableau();
 }
 
@@ -194,9 +197,10 @@ void Simplex::initTableau()
 
   // creating the B matrix which is the initial basic matrix
   B = tableau.block(1, N+1, M, M);
-
+  
   // set pivot
   setPivot();
+  this->initialTableau = this->tableau;
 }
 
 
@@ -207,25 +211,33 @@ void Simplex::initTableau()
 
 void Simplex::setPivot()
 {
-  double min = tableau(0, 1);
-  for (int i=1; i<=N; i++) {
-    if (tableau(0, i) <= min) {
-      min = tableau(0, i);
-      pivotCol = i;
+  double *z = getZRowValues();
+  double min = z[0];
+  pivotCol = 1;
+  
+  for (int i=1; i<(N+M); i++) {
+    if (z[i] < min) {
+      // less than instead of less than or equal to to prevent
+      // cycling "Bland's rule".
+      min = z[i];
+      pivotCol = i+1;
     }
   }
-
+  
   ColVectorXd solution    = tableau.block(1, M+N+1,    M, 1);
   ColVectorXd pivotColumn = tableau.block(1, pivotCol, M, 1);
   ArrayXd ratio = solution.array() / pivotColumn.array();
+  
   min = ratio(0);
   pivotRow = 0;
+  
   for (int i=0; i<M; i++) {
-    if (ratio(i) <= min) {
+    if (ratio(i) <= min && (pivotColumn(i) >= 0)) {
       min = ratio(i);
       pivotRow = i+1;
     }
   }
+  delete [] z;
 }
 
 
@@ -237,28 +249,24 @@ void Simplex::setPivot()
   problem is solved
 */
 
-bool Simplex::nextIteration()
+void Simplex::nextIteration()
 {
-  
-  setPivot();
-
-  xB[pivotRow-1]    = pivotCol;
-  cBt[pivotRow-1]   = cT[pivotCol-1];
-  B.col(pivotRow-1) = A.col(pivotCol-1);
+  double *z = getInitialZRowValues();
+  xB [pivotRow-1] = pivotCol;
+  cBt[pivotRow-1] =  z[pivotCol-1];
+  B.col(pivotRow-1) =  initialTableau.block(1, pivotCol, M, 1);
 
   MatrixXd Binv = B.inverse();
 
-  tableau.block(0, 1, 1, N)     = ( (cBt * Binv * A) - cT );
+  tableau.block(0, 1, 1, N)     = ( ((cBt * Binv) * A) - cT );
   tableau.block(1, 1, M, N)     = ( Binv * A );
   tableau.block(0, N+1, 1, M)   = ( cBt * Binv );
   tableau.block(1, N+1, M, M)   = ( Binv );
-  tableau(0, M+N+1)             = ( cBt * Binv * b );
+  tableau(0, M+N+1)             = ( (cBt * Binv) * b );
   tableau.block(1, M+N+1, M, 1) = ( Binv * b );
-
-  if (isOptimal())
-    return false;
-
-  return true;
+  
+  setPivot();
+  delete [] z;
 }
 
 
@@ -321,6 +329,19 @@ MatrixXd Simplex::getB()
 
 
 /*
+  Get zrow values
+*/
+double* Simplex::getZRowValues() {
+  double* temp = new double[N+M];
+  RowVectorXd row = tableau.block(0, 1, 1, N+M);
+  for (int i=0; i<(N+M); i++)
+    temp[i] = row(i);
+  return temp;
+}
+
+
+
+/*
   Optimality check
 
   Returns true if the matrix is optimal
@@ -329,9 +350,8 @@ MatrixXd Simplex::getB()
 bool Simplex::isOptimal()
 {
   bool result = true;
-  RowVectorXd temp = tableau.block(0, 1, 1, N);
-  int *nonBasic = new int[N];
-  RowVectorXd zRow = this->tableau.block(0, 1, 1, N);
+
+  int *nonBasic = new int[N+M];
   for (int i=0; i<M+N; i++) {
     nonBasic[i] = 0;
   }
@@ -340,24 +360,31 @@ bool Simplex::isOptimal()
     nonBasic[xB[i]-1] = 1;
   }
 
-  for (int i=0; i<N; i++) {
+  double *x = getZRowValues();
+
+  for (long int i=0; i<(M+N); i++) {
+
     if (nonBasic[i] == 0) {
-      if (zRow(i) > 0) {
+      if ((std::signbit(x[i]) == 0)) {
+         //(x[i] > (-std::numeric_limits<double>::epsilon())) {
 	result &= true;
       } else {
 	result &= false;
       }
     }
-    std::cout << nonBasic[i] << ", " << std::endl;
+
     if (nonBasic[i] == 1) {
-      if (zRow(i) == 0) {
+      if (isEqualToZero(x[i])) { //x[i] == 0) {
 	result &= true;
       } else {
 	result &= false;
       }
     }
+    
   }
 
+  delete [] x;
+  delete [] nonBasic;
   /*
   for (int i =0; i<N; i++) {
     if (!(std::signbit(temp[i]) == 0)) {
@@ -401,22 +428,24 @@ int Simplex::getPivotRow()
 /*
   Check for case of unbounded solutions
 
-  The situation occurs when the coefficient for the denominator of 
+  The situation occurs when the coefficient for the denominator of
   the intercept ratios are either zero or negative.
   Returns true or false true indicating the unbounded solution
 */
 
 bool Simplex::hasUnboundedSolutions()
 {
-  ColVectorXd pivotColumn = tableau.block(1, pivotCol-1, M, 1);
+  ColVectorXd solution    = tableau.block(1, M+N+1,    M, 1);
+  ColVectorXd pivotColumn = tableau.block(1, pivotCol, M, 1);
+  ArrayXd ratio = solution.array() / pivotColumn.array();
 
   bool result = true;
 
-  if ((pivotColumn.array() > (-std::numeric_limits<double>::epsilon())).all()) {
+  if ((ratio > (-std::numeric_limits<double>::epsilon())).any()) {
     result = false;
   }
 
-  return result;
+  return (result && !(isOptimal()));
 }
 
 
@@ -431,8 +460,7 @@ bool Simplex::hasUnboundedSolutions()
 
 bool Simplex::hasMultipleOptimalSolutions() {
   int *nonBasic = new int[M+N];
-
-  RowVectorXd zRow = this->tableau.block(0, 1, 1, N+M);
+  double * temp = getZRowValues();
   for (int i=0; i<M+N; i++) {
     nonBasic[i] = 0;
   }
@@ -443,12 +471,12 @@ bool Simplex::hasMultipleOptimalSolutions() {
 
   for (int i=0; i<M+N; i++) {
     if (nonBasic[i] == 0) {
-      if (zRow(i) == 0) {
-	      return true;
+      if (isEqualToZero(temp[i])) {  //temp[i] == 0) {
+	return true;
       }
     }  
   }
-  
+  delete [] temp;
   delete [] nonBasic;
   return false;
   
@@ -493,11 +521,31 @@ long int Simplex::getTableauRows() {
 
 
 /*
+  get tableau size
+*/
+double* Simplex::getInitialZRowValues(){
+  // copy the contents of 'xB' in new 'x' to protect memory from being exposed
+  // in the outside environment
+  double* x = new double[M+N];
+  for (int i=0; i<(M+N); i++)
+    x[i] = initialZRow[i];
+  return x;
+}
+
+
+
+/*
   Destructor
 */
 
 Simplex::~Simplex()
 {
   delete[] xB;
+  delete[] initialZRow;
 }
 
+bool Simplex::isEqualToZero(double x)
+{
+  double epsilon = 0.0000001; //std::numeric_limits<double>::epsilon();
+  return ((epsilon) > std::abs(x - 0.0));
+}

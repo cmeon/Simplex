@@ -34,11 +34,15 @@ class Simplex
 
   MatrixXd tableau;    //(M+2, M+N+2);
 
+  double *initialZRow;
+  MatrixXd initialTableau;
+  bool isEqualToZero(double);
+  
  public:
   Simplex(long int, long int, double[], double[], double[], int[], bool);
   ~Simplex();
   void setPivot();
-  bool nextIteration();
+  void nextIteration();
   void initTableau();
   MatrixXd getTableau();
   int* getXB();
@@ -53,6 +57,8 @@ class Simplex
   long int getM();
   long int getTableauRows();
   long int getTableauCols();
+  double* getZRowValues();
+  double* getInitialZRowValues();
 };
 
 #endif // ifndef SIMPLEX_H
